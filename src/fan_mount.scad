@@ -2,8 +2,6 @@ include <MCAD/nuts_and_bolts.scad>
 
 $fn=100;
 
-////////// Parameter Selection ///////////
-
 //fan_ctc = 105; //  uncomment for 120mm fan
 //fan_ctc = 71.5; //       ""         for 80mm fan
 fan_ctc = 50; //          ""         for 60mm fan
@@ -13,48 +11,39 @@ mounting_screw = 5; // choose M3 = 3, M4 = 4, M5 = 5
 mounting_pos = 0.75; // choose   -1 = left,   0 = center,   1=right
 					// fractional sizes between 0 and +/- 1 accepted!
 
-//////////////////////////////////////////////
-
-
-offset = mounting_pos*(fan_ctc/2-4-15/2-3);
-
 height = 6;
 thickness = 7.5;
 
+fan_mount();
 
-
-difference(){
-union(){
-translate([offset,-10,0]) cube([15,20,height],center=true);
-bracket();
-translate([-15/2+0.3+offset,-4+0.6,0]) fillet(4,height);
-translate([15/2-0.3+offset,-4+0.6,0]) rotate([0,0,90]) fillet(4,height);
+module fan_mount(fan_ctc = fan_ctc, mounting_screw = mounting_screw, mounting_pos = mounting_pos, height = height, thickness = thickness) {
+	assign(offset = mounting_pos * (fan_ctc/2 - 4 - 15/2 - 3)) {
+	difference(){
+		union(){
+			translate([offset,-10,0]) cube([15,20,height],center=true);
+			bracket(fan_ctc, thickness, height);
+			translate([-15/2+0.3+offset,-4+0.6,0]) fillet(4,height);
+			translate([15/2-0.3+offset,-4+0.6,0]) rotate([0,0,90]) fillet(4,height);
+		}
+		if (mounting_screw == 3){
+			translate([offset,-20/2-mounting_screw/2,0.5])
+			rotate([180,0,0]) boltHole(mounting_screw,units="MM",length=30,tolerance=0.25);
+		}
+		else if (mounting_screw == 4){
+			translate([offset,-20/2-mounting_screw/2,0.5])
+			rotate([180,0,0]) boltHole(mounting_screw,units="MM",length=30,tolerance=0.25);
+		}
+		else if (mounting_screw == 5){
+			translate([offset,-20/2-mounting_screw/2,0])
+			rotate([180,0,0]) boltHole(mounting_screw,units="MM",length=30,tolerance=0.25);
+		}
+	translate([offset,-20/2-mounting_screw/2,0])
+		cylinder(r=mounting_screw/2+0.25,h=100,center=true);
+	}
+	}
 }
 
-if (mounting_screw == 3){
-translate([offset,-20/2-mounting_screw/2,0.5])
-rotate([180,0,0]) boltHole(mounting_screw,units="MM",length=30,tolerance=0.25);
-}
-
-else if (mounting_screw == 4){
-translate([offset,-20/2-mounting_screw/2,0.5])
-rotate([180,0,0]) boltHole(mounting_screw,units="MM",length=30,tolerance=0.25);
-
-}
-
-else if (mounting_screw == 5){
-translate([offset,-20/2-mounting_screw/2,0])
-rotate([180,0,0]) boltHole(mounting_screw,units="MM",length=30,tolerance=0.25);
-}
-
-translate([offset,-20/2-mounting_screw/2,0])
-cylinder(r=mounting_screw/2+0.25,h=100,center=true);
-
-}
-
-
-
-module bracket(){
+module bracket(fan_ctc = fan_ctc, thickness = thickness, height = height){
 difference(){
 union(){
 cube([fan_ctc+4,thickness,height],center=true);
